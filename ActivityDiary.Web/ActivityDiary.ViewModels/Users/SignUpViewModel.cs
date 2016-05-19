@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ActivityDiary.Web.ViewModels
+namespace ActivityDiary.ViewModels.Users
 {
     public class SignUpViewModel
     {
         public string Name { get; set; }
+        public string Email { get; set; }
         public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
     }
 }

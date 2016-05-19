@@ -1,4 +1,4 @@
-﻿@model ActivityDiary.Web.ViewModels.SignUpViewModel
+﻿@model ActivityDiary.ViewModels.Users.SignUpViewModel
 
 @{
     ViewBag.Title = "SignUp";
@@ -7,7 +7,9 @@
 <h2>SignUp</h2>
 
 <form method="POST">
-    <input type="text" name="Name" />
-    <input type="text" name="Password"/>
+    @Html.TextBox("Name", null, new {placeholder="Name"})
+    @Html.TextBox("Email", null, new {placeholder="Email address"})
+    @Html.Password("Password", null, new {placeholder="Password"})
+    @Html.Password("ConfirmPassword", null, new {placeholder="Confirm Password"})
     <input type="submit" value="Create"/>
 </form>

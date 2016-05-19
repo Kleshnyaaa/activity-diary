@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using ActivityDiary.Web.IdentityModels;
-using ActivityDiary.Web.ViewModels;
+using ActivityDiary.ViewModels.Users;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 
