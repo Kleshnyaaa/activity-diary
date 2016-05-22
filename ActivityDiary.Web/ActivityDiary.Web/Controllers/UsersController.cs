@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 using System.Web.Mvc;
 using ActivityDiary.Web.IdentityModels;
@@ -16,37 +17,46 @@ namespace ActivityDiary.Web.Controllers
 {
     public class UsersController : Controller
     {
-        readonly AppUserManager _userManager;
-        readonly IAuthenticationManager _authenticationManager;
-
-        public UsersController()
+        private AppUserManager UserManager
         {
-            _userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
-            _authenticationManager = HttpContext.GetOwinContext().Authentication;
+            get
+            {
+                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            }
+        }
+
+        private IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().Authentication;
+            }
         }
 
         // GET: Users
         public ActionResult LogIn()
         {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
             return View();
         }
 
         [HttpPost]
-        public ActionResult LogIn(LoginViewModel model)
+        public ActionResult LogIn(LoginViewModel model, string returnUrl)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             AppUser user;
-            var userByEmail = _userManager.FindByEmail(model.NameOrMail);
+            var userByEmail = UserManager.FindByEmail(model.NameOrEmail);
 
-            if (userByEmail == null)
+            if (userByEmail != null)
             {
-                user = _userManager.Find(model.NameOrMail, model.Password);
+                user = UserManager.Find(userByEmail.UserName, model.Password);
             }
             else
             {
-                user = _userManager.Find(userByEmail.UserName, model.Password);
+                user = UserManager.Find(model.NameOrEmail, model.Password);
             }
 
             if (user == null)
@@ -55,15 +65,23 @@ namespace ActivityDiary.Web.Controllers
                 return View(model);
             }
 
-            var identity = _userManager.CreateIdentity(user, DefaultAuthenticationTypes.ApplicationCookie);
-            
+            ClaimsIdentity claim = UserManager.CreateIdentity(user, DefaultAuthenticationTypes.ApplicationCookie);
+            AuthenticationManager.SignOut();
+            AuthenticationManager.SignIn(new AuthenticationProperties
+            {
+                IsPersistent = true
+            }, claim);
 
-            // Verify user, set cookie and redirect somewhere
-            return View();
+            if (String.IsNullOrEmpty(returnUrl))
+                return RedirectToAction("Index", "Home");
+            else
+                return Redirect(returnUrl);
         }
 
         public ActionResult SignUp()
         {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
             return View();
         }
 
@@ -73,15 +91,15 @@ namespace ActivityDiary.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            //var _userManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
+            //var UserManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
             AppUser user = new AppUser()
             {
                 UserName = model.Name,
                 Email = model.Email
             };
             // Add validation of case when User or Email is existing in DB
-            var tmp = _userManager.Create(user, model.Password);
-            return View();
+            var tmp = UserManager.Create(user, model.Password);
+            return RedirectToAction("Index", "Home");
         }
     }
 }

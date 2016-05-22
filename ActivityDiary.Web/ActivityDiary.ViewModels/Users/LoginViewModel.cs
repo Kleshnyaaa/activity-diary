@@ -10,7 +10,7 @@ namespace ActivityDiary.ViewModels.Users
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Please enter Name or Email")]
-        public string NameOrMail { get; set; }
+        public string NameOrEmail { get; set; }
 
         [Required(ErrorMessage = "Please enter Password")]
         public string Password { get; set; }

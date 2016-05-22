@@ -162,6 +162,7 @@
     <Compile Include="IdentityModels\AppUser.cs" />
     <Compile Include="IdentityModels\AppUserManager.cs" />
     <Compile Include="IdentityModels\UsersDbContext.cs" />
+    <Compile Include="IdentityModels\UsersService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
