@@ -36,6 +36,10 @@ namespace ActivityDiary.Web.Controllers
         // GET: Users
         public ActionResult LogIn()
         {
+            // Change validation for not validated user
+            // If user is not authenticated - redirect on general Index page with description and Login/Registration button
+            // If user is authenticated - stay on Home/Index with personal dashboard
+
             if (User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
             return View();
