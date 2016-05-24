@@ -17,19 +17,11 @@ namespace ActivityDiary.Web.Controllers
 {
     public class UsersController : Controller
     {
-        private AppUserManager UserManager
+        private UsersService _usersService
         {
             get
             {
-                return HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
-            }
-        }
-
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
+                return new UsersService(HttpContext);
             }
         }
 
@@ -51,30 +43,11 @@ namespace ActivityDiary.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            AppUser user;
-            var userByEmail = UserManager.FindByEmail(model.NameOrEmail);
-
-            if (userByEmail != null)
-            {
-                user = UserManager.Find(userByEmail.UserName, model.Password);
-            }
-            else
-            {
-                user = UserManager.Find(model.NameOrEmail, model.Password);
-            }
-
-            if (user == null)
+            if (!_usersService.LogIn(model.NameOrEmail, model.Password))
             {
                 ModelState.AddModelError("", "Invalid Login or Password");
                 return View(model);
-            }
-
-            ClaimsIdentity claim = UserManager.CreateIdentity(user, DefaultAuthenticationTypes.ApplicationCookie);
-            AuthenticationManager.SignOut();
-            AuthenticationManager.SignIn(new AuthenticationProperties
-            {
-                IsPersistent = true
-            }, claim);
+            }// Else User is loged In
 
             if (String.IsNullOrEmpty(returnUrl))
                 return RedirectToAction("Index", "Home");
@@ -95,14 +68,8 @@ namespace ActivityDiary.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            //var UserManager = HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
-            AppUser user = new AppUser()
-            {
-                UserName = model.Name,
-                Email = model.Email
-            };
-            // Add validation of case when User or Email is existing in DB
-            var tmp = UserManager.Create(user, model.Password);
+            _usersService.RegisterUser(model.Name, model.Email, model.Password);
+
             return RedirectToAction("Index", "Home");
         }
     }
